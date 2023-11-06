@@ -18,7 +18,7 @@ function addToCloud(e) {  //(Function to add data to crudCrud)
         Quantity: Cquantity.value,
     }
 
-    axios.post('https://crudcrud.com/api/1ef7cccf020346d7a5860ee2922e10c0/candyStock', stock)
+    axios.post('https://crudcrud.com/api/e8b0644ab88b43b1a9af4016285e6d85/candyStock', stock)
         .then((res) => {
             addToScreen(res.data);
         })
@@ -68,41 +68,46 @@ async function update(event, data, buyQuan) {    //(Function to update data at c
 
     //take updated object from the server to get latest stock's quantity evrytime
     event.preventDefault();
-    let updatedRes = await axios.get(`https://crudcrud.com/api/1ef7cccf020346d7a5860ee2922e10c0/candyStock/${data._id}`);
-    let updatedObj = updatedRes.data;
+    try {
+        let updatedRes = await axios.get(`https://crudcrud.com/api/e8b0644ab88b43b1a9af4016285e6d85/candyStock/${data._id}`);
+        let updatedObj = updatedRes.data;
 
-    if (buyQuan > updatedObj.Quantity && updatedObj.Quantity != 0) {
-        alert(`You have only ${updatedObj.Quantity} left`);
-        buyQuan = updatedObj.Quantity
+        if (buyQuan > updatedObj.Quantity && updatedObj.Quantity != 0) {
+            alert(`You have only ${updatedObj.Quantity} left`);
+            buyQuan = updatedObj.Quantity
+        }
+
+
+        if (updatedObj.Quantity == 0) {
+            alert('NO STOCK')
+            deleteFromCloud(event,updatedObj);
+            location.reload();
+        }
+        else {
+            axios.put(`https://crudcrud.com/api/e8b0644ab88b43b1a9af4016285e6d85/candyStock/${data._id}`, {
+                Name: updatedObj.Name,
+                Description: updatedObj.Description,
+                Price: updatedObj.Price,
+                Quantity: updatedObj.Quantity - buyQuan,
+            })
+                .then((res) => {
+                    location.reload();    //(refreshing page to get updated data on screen)
+                })
+                .catch((err) => {
+                    alert(err.message);
+                })
+        }
+    }
+    catch (err) {
+        alert(err.message);
     }
 
-
-    if(updatedObj.Quantity==0){
-        alert('NO STOCK')
-        deleteFromCloud(updatedObj);
-        location.reload();
-    }
-    else{
-        axios.put(`https://crudcrud.com/api/1ef7cccf020346d7a5860ee2922e10c0/candyStock/${data._id}`, {
-        Name: updatedObj.Name,
-        Description: updatedObj.Description,
-        Price: updatedObj.Price,
-        Quantity: updatedObj.Quantity - buyQuan,
-    })
-        .then((res) => {
-            location.reload();    //(refreshing page to get updated data on screen)
-        })
-        .catch((err) => {
-            alert(err.message);
-        })
-    }
-    
 }
 
 
-//(EL so that when refreshed, data from crudCrud will be on screen as it is)
+//(EvList: so that when refreshed, data from crudCrud will be rendered on screen)
 window.addEventListener('DOMContentLoaded', () => {
-    axios.get(`https://crudcrud.com/api/1ef7cccf020346d7a5860ee2922e10c0/candyStock`)
+    axios.get(`https://crudcrud.com/api/e8b0644ab88b43b1a9af4016285e6d85/candyStock`)
         .then((res) => {
             for (var i = 0; i < res.data.length; i++) {
                 addToScreen(res.data[i]);
@@ -112,7 +117,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 
-function deleteFromCloud(obj) {   //(Function to delete data from crudCrud)
-
-    axios.delete(`https://crudcrud.com/api/1ef7cccf020346d7a5860ee2922e10c0/candyStock/${obj._id}`);
+function deleteFromCloud(event,obj) {   //(Function to delete data from crudCrud)
+    event.preventDefault();
+    axios.delete(`https://crudcrud.com/api/e8b0644ab88b43b1a9af4016285e6d85/candyStock/${obj._id}`)
+        .then((res) => {
+            console.log(res)
+        })
+        .catch((err) => {
+            alert(err.message);
+        })
 }
