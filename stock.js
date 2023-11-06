@@ -117,7 +117,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 
-function deleteFromCloud(event,obj) {   //(Function to delete data from crudCrud)
+function deleteFromCloud(event,obj) {   //(Function to delete candyDetails from crudCrud)
     event.preventDefault();
     axios.delete(`https://crudcrud.com/api/e8b0644ab88b43b1a9af4016285e6d85/candyStock/${obj._id}`)
         .then((res) => {
